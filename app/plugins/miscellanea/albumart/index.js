@@ -5,6 +5,7 @@ var libQ = require('kew');
 var nodetools = require('nodetools');
 var enableweb = true;
 var defaultwebsize = 'large';
+var metadataimage = false;
 
 // Define the AlbumArt class
 module.exports = AlbumArt;
@@ -29,6 +30,7 @@ AlbumArt.prototype.onVolumioStart = function() {
 
 	enableweb = self.config.get('enableweb', true);
 	defaultwebsize = self.config.get('defaultwebsize', 'extralarge');
+    metadataimage = self.config.get('metadataimage', true);
 
 	//Starting server
 	exec('/usr/local/bin/node '+__dirname+'/serverStartup.js '+self.config.get('port')+' '+self.config.get('folder'),
@@ -84,7 +86,6 @@ AlbumArt.prototype.getConfigurationFiles = function()
 AlbumArt.prototype.getAlbumArt = function (data, path,icon) {
 
     var artist, album, size;
-
     if (data != undefined && data.path != undefined) {
         path = this.sanitizeUri(data.path);
     }
@@ -136,7 +137,7 @@ AlbumArt.prototype.getAlbumArt = function (data, path,icon) {
         else url=url+'&icon='+icon;
     }
 
-
+    url=url+'&metadataimage='+metadataimage;
 
     return url;
 };
@@ -164,6 +165,11 @@ AlbumArt.prototype.saveAlbumartOptions = function (data) {
 		self.config.set('defaultwebsize', data['web_quality'].value);
 		defaultwebsize = data.web_quality.value;
 	}
+
+    if (data.metadataimage != undefined) {
+        self.config.set('metadataimage', data['metadataimage']);
+        metadataimage = data.metadataimage;
+    }
 
 	self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('APPEARANCE.ALBUMART_SETTINGS'), self.commandRouter.getI18nString('COMMON.SETTINGS_SAVED_SUCCESSFULLY'));
 };
